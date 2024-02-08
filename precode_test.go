@@ -9,22 +9,38 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMainHandlerWhenCountMoreThanTotal(t *testing.T) {
-	totalCount := 4
-	// здесь нужно создать запрос к сервису
+func TestMainHandlerWhenOk(t *testing.T) {
+
 	req := httptest.NewRequest("GET", "/cafe?count=10&city=moscow", nil)
 
 	responseRecorder := httptest.NewRecorder()
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
-	// здесь нужно добавить необходимые проверки
 	assert.Equal(t, responseRecorder.Code, http.StatusOK)
 	assert.NotEmpty(t, responseRecorder.Body.String())
+}
 
+func TestMainHandlerWhenMissingCount(t *testing.T) {
+
+	req := httptest.NewRequest("GET", "/cafe?count=10&city=moscow", nil)
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(mainHandle)
+	handler.ServeHTTP(responseRecorder, req)
 	if responseRecorder.Code == http.StatusBadRequest {
 		assert.Equal(t, responseRecorder.Body.String(), "wrong city value")
 	}
+}
+
+func TestMainHandlerAllCafes(t *testing.T) {
+
+	totalCount := len(cafeList["moscow"])
+	req := httptest.NewRequest("GET", "/cafe?count=10&city=moscow", nil)
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(mainHandle)
+	handler.ServeHTTP(responseRecorder, req)
 
 	if responseRecorder.Code != http.StatusBadRequest {
 		assert.Equal(t, responseRecorder.Code, http.StatusOK)
