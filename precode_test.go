@@ -28,12 +28,14 @@ func TestMainHandlerWhenMissingCount(t *testing.T) {
 	responseRecorder := httptest.NewRecorder()
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
+
 	if responseRecorder.Code == http.StatusBadRequest {
 		assert.Equal(t, responseRecorder.Body.String(), "wrong city value")
 	}
+	assert.Equal(t, responseRecorder.Code, http.StatusBadRequest)
 }
 
-func TestMainHandlerAllCafes(t *testing.T) {
+func TestMainHandlerWhenCountMoreThanTotal(t *testing.T) {
 
 	totalCount := len(cafeList["moscow"])
 	req := httptest.NewRequest("GET", "/cafe?count=10&city=moscow", nil)
@@ -42,10 +44,8 @@ func TestMainHandlerAllCafes(t *testing.T) {
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
-	if responseRecorder.Code != http.StatusBadRequest {
-		assert.Equal(t, responseRecorder.Code, http.StatusOK)
-		assert.NotEmpty(t, responseRecorder.Body.String())
-		assert.Equal(t, responseRecorder.Body.String(), "Мир кофе,Сладкоежка,Кофе и завтраки,Сытый студент")
-		assert.Len(t, strings.Split(responseRecorder.Body.String(), ","), totalCount)
-	}
+	assert.Equal(t, responseRecorder.Code, http.StatusOK)
+	assert.NotEmpty(t, responseRecorder.Body.String())
+	assert.Equal(t, responseRecorder.Body.String(), "Мир кофе,Сладкоежка,Кофе и завтраки,Сытый студент")
+	assert.Len(t, strings.Split(responseRecorder.Body.String(), ","), totalCount)
 }
